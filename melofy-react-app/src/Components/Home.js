@@ -50,10 +50,10 @@ const Home = ({sendAddTrack, sendPlayTrack}) => {
     }, [search , chartTracks]);
 
     return ( 
-        <div className='home-container w-full h-full flex flex-col dark:text-white'>
+        <div className='home-container w-full h-full flex flex-col'>
             <div className='p-8 h-1/6'>
-                <h1 className='text-4xl font-bold mb-2'>Welcome!</h1>
-                <p className='text-lg font-semibold'>Search the top songs and add them to your favorites list.</p>
+                <h1 className='text-4xl font-bold mb-2 dark:text-white'>Welcome!</h1>
+                <p className='text-lg font-semibold dark:text-white'>Search the top songs and add them to your favorites list.</p>
             </div>
             <div className='search-container px-8 h-1/6' >
                 <input
@@ -62,9 +62,9 @@ const Home = ({sendAddTrack, sendPlayTrack}) => {
                     className='w-full p-2 border-2 border-gray-200 rounded-md'
                     placeholder='Search for a song...' />
                 <div className='w-full h-12 mt-10 flex pt-4 text-lg font-semibold'>
-                    <p className='ml-6'>#</p>
-                    <p className='ml-6 mr-96'>Song</p>
-                    <p className='ml-5'>Artist</p>
+                    <p className='ml-6 dark:text-white'>#</p>
+                    <p className='ml-6 mr-96 dark:text-white'>Song</p>
+                    <p className='ml-5 dark:text-white'>Artist</p>
                 </div>
                 <hr></hr>
             </div>
