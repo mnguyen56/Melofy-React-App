@@ -1,63 +1,128 @@
 import React from 'react';
 import ReactPlayer from 'react-player';
-import { useRef, useState } from 'react';
+import { useRef, useState, useEffect } from 'react';
+import { FaPlayCircle } from "react-icons/fa";
+import { FaPauseCircle } from "react-icons/fa";
+import { FaVolumeLow } from "react-icons/fa6";
+import axios from 'axios';
+import placeholder from '../Assets/placeholder.png';
 
-const Player = () => {
-    const [isPlaying, setIsPlaying] = useState(false);
-    const playerRef = useRef(null);
+const Player = ({ isPlaying, setIsPlaying, selectTrack }) => {
+    const reactPlayerRef = useRef(null);
+    const [currentTime, setCurrentTime] = useState(0);
+    const [length, setLength] = useState(0);
+    const [volume, setVolume] = useState(0.5);
+    const [data, setData] = useState([]);
 
-    const handlePlayPause = () => {
-        if (playerRef.current) {
+    useEffect(() => {
+        const fetchData = async () => {
+            const options = {
+                method: 'GET',
+                url: 'https://shazam-core.p.rapidapi.com/v1/tracks/youtube-video',
+                params: {
+                    track_id: selectTrack.key,
+                    name: selectTrack.share.subject.substring(0,39)
+                },
+                headers: {
+                    'X-RapidAPI-Key': '7a2e9ef526msh612866c0e54d09fp1ed33fjsnf823f868be4c',
+                    'X-RapidAPI-Host': 'shazam-core.p.rapidapi.com'
+                }
+            };
+
+            try {
+                const response = await axios.request(options);
+                setData(response.data);
+            } catch (error) {
+                console.error(error);
+            }
+        };
+        fetchData();
+    }, [selectTrack]);
+
+    const handleVolumeChange = (e) => {
+        const newVolume = parseFloat(e.target.value);
+        setVolume(newVolume);
+        if (reactPlayerRef.current) {
+            reactPlayerRef.current.getInternalPlayer().setVolume(newVolume);
+        }
+    };
+
+    const handleLength = (duration) => {
+        setLength(duration);
+    };
+
+    const handleProgress = (progress) => {
+        setCurrentTime(progress.playedSeconds);
+    };
+
+    const handleSlider = (e) => {
+        if (reactPlayerRef.current) {
+            const sliderTime = (e.nativeEvent.offsetX / e.target.clientWidth) * length;
+            reactPlayerRef.current.seekTo(sliderTime, 'seconds');
+            reactPlayerRef.current.getInternalPlayer().playVideo();
+            setIsPlaying(true);
+        }
+    };
+
+    const handlePlay = () => {
+        if (reactPlayerRef.current) {
             if (isPlaying) {
-                playerRef.current.getInternalPlayer().pauseVideo();
+                reactPlayerRef.current.getInternalPlayer().pauseVideo();
             } else {
-                playerRef.current.getInternalPlayer().playVideo();
+                reactPlayerRef.current.getInternalPlayer().playVideo();
             }
             setIsPlaying(!isPlaying);
         }
     };
 
     return (
-        <div w-full h-full>
-            {/* React Player component */}
-            <ReactPlayer
-                ref={playerRef}
-                url="https://www.youtube.com/watch?v=dQw4w9WgXcQ" // Example URL, replace with your own
-                width="100%"
-                height="50%"
-                className="rounded-t-md"
-            />
-
-            {/* Play button */}
-            <button
-                className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white rounded-full w-12 h-12 flex items-center justify-center shadow-md"
-                onClick={handlePlayPause}
-            >
-                <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    className="h-6 w-6"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                >
-                    {isPlaying ? (
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M19 9l-7 6-7-6"
-                        />
+        <div className='p-2 w-full h-full'>
+            <div className='w-full h-2/3 bg-slate-300 rounded-md p-4 dark:bg-gray-500'>
+                <div className='w-full h-full flex'>
+                    {selectTrack.images.coverart !== undefined ? (
+                        <img src={selectTrack.images.coverart} alt='album-art' className='h-full rounded-md mx-auto' />
                     ) : (
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M5 15.586A2 2 0 016.414 14L19 2.414A2 2 0 0121 3.828V20a2 2 0 01-2 2H6a2 2 0 01-2-2V15.586zM5 15V5l11 7-11 7z"
-                        />
+                        <img src={placeholder} alt='album-art' className='h-full rounded-md mx-auto' />
                     )}
-                </svg>
-            </button>
-            <p></p>
+                </div>
+                <div className=''>
+                    <ReactPlayer
+                        ref={reactPlayerRef}
+                        url={data.actions && data.actions.map(action => action.uri).join('')}
+                        width='0%' height='0%'
+                        onProgress={handleProgress}
+                        onDuration={handleLength}
+                        volume={volume / 100} />
+                </div>
+            </div>
+            <div className='w-full h-1/3 pt-2'>
+                <div className='w-full h-full bg-slate-300 rounded-md pt-2 dark:bg-gray-500'>
+                    <p className='text-center text-md font-semibold text-black dark:text-white'>{selectTrack.share.subject}</p>
+                    <div className='w-full h-1/4 px-4 pt-4'>
+                        <div className='w-full h-2 bg-slate-200 rounded-full' onClick={handleSlider}>
+                            <div className='h-full bg-slate-600 rounded-full' style={{ width: `${(currentTime / length) * 100}%` }}>
+                            </div>
+                        </div>
+                    </div>
+                    <div className='w-full h-1/2 flex'>
+                        {
+                            isPlaying ? (
+                                <FaPauseCircle onClick={handlePlay} className='text-4xl text-slate-600 mx-auto my-auto dark:text-gray-300' />
+                            ) : (
+                                <FaPlayCircle onClick={handlePlay} className='text-4xl text-slate-600 mx-auto my-auto dark:text-gray-300' />
+                            )
+                        }
+                        <FaVolumeLow className='text-4xl text-slate-600 my-auto dark:text-gray-300' />
+                        <input
+                            type='range'
+                            min='0'
+                            max='100'
+                            value={volume}
+                            onChange={handleVolumeChange}
+                            className='w-1/2 h-2 m-auto bg-slate-200 rounded-full' />
+                    </div>
+                </div>
+            </div>
         </div>
     );
 };

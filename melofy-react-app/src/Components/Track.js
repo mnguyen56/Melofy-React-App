@@ -3,18 +3,18 @@ import { FaHeartCirclePlus } from "react-icons/fa6";
 import { FaPlay } from 'react-icons/fa';
 import placeholder from '../Assets/placeholder.png';
 
-const Track = ({track, index, playTrack, addTrack}) => {
-
-    const handleClickPlay = () => {
-        playTrack(track);
-    };
+const Track = ({ track, index, addTrack, playTrack}) => {
 
     const handleClickAdd = () => {
         addTrack(track);
     };
 
+    const handleClickPlay = () => {
+        playTrack(track);
+    };
+
     return (
-        <div className='w-full h-16 bg-slate-100 flex rounded-md drop-shadow-sm'>
+        <div className='w-full h-16 bg-slate-100 flex rounded-md drop-shadow-sm relative group dark:bg-gray-400'>
             <div className='w-14 h-full flex'>
                 <p className='text-lg mx-auto my-auto'>{index + 1}</p>
             </div>
@@ -26,9 +26,9 @@ const Track = ({track, index, playTrack, addTrack}) => {
                 <p className='text-md my-auto'>{track.subtitle}</p>
             </div>
             <FaHeartCirclePlus onClick={handleClickAdd}
-            className='my-auto mx-auto text-3xl text-slate-400 hover:text-red-500'/>
-            <FaPlay  onClick={handleClickPlay}
-            className='my-auto mx-auto text-2xl text-slate-400 hover:text-slate-600' />
+                className='my-auto mx-auto text-3xl text-slate-400 hover:text-red-500 hidden group-hover:block dark:text-gray-300' />
+            <FaPlay onClick={handleClickPlay}
+                className='my-auto mx-auto text-2xl text-slate-400 hover:text-slate-600 hidden group-hover:block dark:text-gray-300' />
         </div>
     );
 };
