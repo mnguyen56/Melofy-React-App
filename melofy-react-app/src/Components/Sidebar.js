@@ -33,7 +33,7 @@ const Sidebar = ({ favorites, handleDelete, handleClickFav }) => {
             </div>
             <div className='theme-container h-1/6 px-5 text-xl font-semibold flex'>
                 <button onClick={toggleDarkMode} className='dark:text-white'>Dark Mode</button>
-                <FaMoon className='text-black text-xl ml-2 mt-1 mt-16 dark:text-white' />
+                <FaMoon className='text-black text-xl ml-2 mt-16 dark:text-white' />
             </div>
         </div>
     );
